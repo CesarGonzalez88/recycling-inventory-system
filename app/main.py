@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app import models, schemas, crud
 from app.database import engine, get_db
+from app.schemas import MovementResponse
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -61,6 +62,11 @@ def create_movement(movement: schemas.MovementCreate, db: Session = Depends(get_
     return crud.create_movement(db, movement)
 
 
-@app.get("/movements")
+@app.get("/movements", response_model=list[MovementResponse])
 def read_movements(db: Session = Depends(get_db)):
     return crud.get_movements(db)
+
+
+@app.get("/inventory-summary")
+def inventory_summary(db: Session = Depends(get_db)):
+    return crud.get_inventory_summary(db)

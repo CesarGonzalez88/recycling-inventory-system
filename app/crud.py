@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app import models, schemas
 from fastapi import HTTPException
+from sqlalchemy import func
 
 
 def create_material(db: Session, material: schemas.MaterialCreate):
@@ -62,3 +63,18 @@ def create_movement(db: Session, movement: schemas.MovementCreate):
 
 def get_movements(db: Session):
     return db.query(models.Movement).all()
+
+
+# GET SUMMARY OF INVENTORY
+def get_inventory_summary(db: Session):
+    total_materials = db.query(models.Material).count()
+
+    total_stock = db.query(func.sum(models.Material.quantity)).scalar()
+
+    movements_count = db.query(models.Movement).count()
+
+    return {
+        "total_materials": total_materials,
+        "total_stock": total_stock or 0,
+        "movements_count": movements_count
+    }

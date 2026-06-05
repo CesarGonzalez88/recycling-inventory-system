@@ -24,3 +24,14 @@ class MovementCreate(BaseModel):
     type: str  # IN / OUT
     quantity: int
     description: str
+
+
+class MovementResponse(BaseModel):
+    id: int
+    type: str
+    quantity: int
+    description: str
+    material: MaterialResponse
+
+    class Config:
+        from_attributes = True
