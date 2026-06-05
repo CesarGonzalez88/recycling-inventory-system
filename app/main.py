@@ -59,3 +59,8 @@ def delete_material(id: int, db: Session = Depends(get_db)):
 @app.post("/movements")
 def create_movement(movement: schemas.MovementCreate, db: Session = Depends(get_db)):
     return crud.create_movement(db, movement)
+
+
+@app.get("/movements")
+def read_movements(db: Session = Depends(get_db)):
+    return crud.get_movements(db)

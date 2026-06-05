@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 from app.database import Base
 
 # USERS
@@ -26,6 +27,11 @@ class Material(Base):
     unit = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    movements = relationship(
+        "Movement",
+        back_populates="material"
+    )
+
 
 # MOVEMENTS
 class Movement(Base):
@@ -38,5 +44,10 @@ class Movement(Base):
     type = Column(String)  # IN / OUT
     quantity = Column(Integer)
     description = Column(String)
+
+    material = relationship(
+        "Material",
+        back_populates="movements"
+    )
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())

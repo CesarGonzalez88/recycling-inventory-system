@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app import models, schemas
+from fastapi import HTTPException
 
 
 def create_material(db: Session, material: schemas.MaterialCreate):
@@ -24,7 +25,10 @@ def create_movement(db: Session, movement: schemas.MovementCreate):
         models.Material.id == movement.material_id).first()
 
     if not material:
-        return {"error": "Material not found"}
+        raise HTTPException(
+            status_code=404,
+            detail="material not found"
+        )
 
     # INCREASE STOCK
     if movement.type == "IN":
@@ -32,10 +36,13 @@ def create_movement(db: Session, movement: schemas.MovementCreate):
 
     # DECREASE STOCK
     elif movement.type == "OUT":
-        material.quantity -= movement.quantity
 
-        if material.quantity < 0:
-            return {"error": "Not enough stock"}
+        if material.quantity < movement.quantity:
+            raise HTTPException(
+                status_code=400,
+                detail="Not enough stock"
+            )
+        material.quantity -= movement.quantity
 
     db_movement = models.Movement(
         material_id=movement.material_id,
@@ -49,3 +56,9 @@ def create_movement(db: Session, movement: schemas.MovementCreate):
     db.refresh(material)
 
     return db_movement
+
+# GET MOVEMENTS HISTORY
+
+
+def get_movements(db: Session):
+    return db.query(models.Movement).all()
