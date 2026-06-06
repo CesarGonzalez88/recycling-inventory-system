@@ -36,6 +36,7 @@ def create_movement(db: Session, movement: schemas.MovementCreate):
         material.quantity += movement.quantity
 
     # DECREASE STOCK
+
     elif movement.type == "OUT":
 
         if material.quantity < movement.quantity:

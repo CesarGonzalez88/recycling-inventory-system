@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import Literal
 
 
 class MaterialBase(BaseModel):
@@ -21,8 +22,8 @@ class MaterialResponse(MaterialBase):
 
 class MovementCreate(BaseModel):
     material_id: int
-    type: str  # IN / OUT
-    quantity: int
+    type: Literal["IN", "OUT"]  # IN / OUT
+    quantity: int = Field(gt=0)  # more than 0
     description: str
 
 
