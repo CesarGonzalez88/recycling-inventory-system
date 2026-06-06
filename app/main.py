@@ -4,15 +4,30 @@ from sqlalchemy.orm import Session
 from app import models, schemas, crud
 from app.database import engine, get_db
 from app.schemas import MovementResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
+
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # luego lo restringimos
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.get("/")
-def home():
-    return {"message": "Inventory System API Running"}
+def serve_frontend():
+    return FileResponse("frontend/frontend.html")
 
 
 # CREATE MATERIAL
@@ -24,12 +39,24 @@ def create_material(material: schemas.MaterialCreate, db: Session = Depends(get_
 # GET ALL MATERIALS
 @app.get("/materials")
 def read_materials(db: Session = Depends(get_db)):
-    return crud.get_materials(db)
+
+    data = crud.get_materials(db)
+
+    return {
+        "success": True,
+        "data": data
+    }
 
 
 @app.get("/materials/{id}")
 def get_material(id: int, db: Session = Depends(get_db)):
-    return db.query(models.Material).filter(models.Material.id == id).first()
+
+    data = db.query(models.Material).filter(models.Material.id == id).first()
+
+    return {
+        "success": True,
+        "data": data
+    }
 
 
 @app.put("/materials/{id}")
@@ -59,7 +86,13 @@ def delete_material(id: int, db: Session = Depends(get_db)):
 
 @app.post("/movements")
 def create_movement(movement: schemas.MovementCreate, db: Session = Depends(get_db)):
-    return crud.create_movement(db, movement)
+
+    data = crud.create_movement(db, movement)
+
+    return {
+        "success": True,
+        "data": data
+    }
 
 
 @app.get("/movements")
@@ -68,9 +101,20 @@ def read_movements(
     material_id: int = None,
     db: Session = Depends(get_db)
 ):
-    return crud.get_movements(db, type, material_id)
+    data = crud.get_movements(db, type, material_id)
+
+    return {
+        "success": True,
+        "data": data
+    }
 
 
 @app.get("/inventory-summary")
 def inventory_summary(db: Session = Depends(get_db)):
-    return crud.get_inventory_summary(db)
+
+    data = crud.get_inventory_summary(db)
+
+    return {
+        "success": True,
+        "data": data
+    }
