@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app import models, schemas, crud
@@ -59,10 +59,10 @@ def get_material(id: int, db: Session = Depends(get_db)):
     }
 
 
-@app.put("/materials/{id}")
-def update_material(id: int, updated: schemas.MaterialCreate, db: Session = Depends(get_db)):
+@app.put("/materials/{material_id}")
+def update_material(material_id: int, updated: schemas.MaterialUpdate, db: Session = Depends(get_db)):
     material = db.query(models.Material).filter(
-        models.Material.id == id).first()
+        models.Material.id == material_id).first()
 
     material.name = updated.name
     material.type = updated.type
@@ -74,14 +74,18 @@ def update_material(id: int, updated: schemas.MaterialCreate, db: Session = Depe
     return material
 
 
-@app.delete("/materials/{id}")
-def delete_material(id: int, db: Session = Depends(get_db)):
+@app.delete("/materials/{material_id}")
+def delete_material(material_id: int, db: Session = Depends(get_db)):
     material = db.query(models.Material).filter(
-        models.Material.id == id).first()
+        models.Material.id == material_id).first()
+
+    if not material:
+        raise HTTPException(status_code=404, detail="Material not found")
 
     db.delete(material)
     db.commit()
-    return {"message": "Material deleted"}
+
+    return {"success": True}
 
 
 @app.post("/movements")

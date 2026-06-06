@@ -2,6 +2,7 @@ const API_URL = "http://127.0.0.1:8000";
 
 let allMaterials = [];
 let allMovements = [];
+let editingMaterialId = null;
 
 // MATERIALS
 async function loadMaterials() {
@@ -27,9 +28,96 @@ function renderMaterials(list) {
                 <td>${item.type}</td>
                 <td>${item.quantity}</td>
                 <td>${item.unit}</td>
+                <td>
+                    <button onclick="editMaterial(${item.id}, '${item.name}', ${item.quantity}, '${item.unit}', '${item.type}')">
+                        Edit
+                    </button>
+
+                    <button onclick="deleteMaterial(${item.id})">
+                        Delete
+                    </button>
+                </td>
             </tr>
         `;
     });
+}
+
+function editMaterial(id, name, quantity, unit, type) {
+
+    editingMaterialId = id;
+    editingMaterialType = type;
+
+    document.getElementById("editName").value = name;
+    document.getElementById("editQuantity").value = quantity;
+    document.getElementById("editUnit").value = unit;
+    document.getElementById("editType").value = type;
+
+    document.getElementById("editModal").style.display = "block";
+}
+
+function closeModal() {
+    document.getElementById("editModal").style.display = "none";
+}
+
+async function deleteMaterial(id) {
+
+    const response = await fetch(`${API_URL}/materials/${id}`, {
+        method: "DELETE"
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        showMessage(data.detail, true);
+        return;
+    }
+
+    showMessage("Material deleted successfully", false, "materials");
+
+    await loadMaterials();
+    await loadMovements();
+}
+
+async function saveMaterial() {
+
+    const name = document.getElementById("editName").value;
+    const quantity = Number(document.getElementById("editQuantity").value);
+    const unit = document.getElementById("editUnit").value;
+    const type = document.getElementById("editType").value;
+
+    console.log("EDIT PAYLOAD:", {
+        name,
+        quantity,
+        unit
+    });
+
+    const response = await fetch(`${API_URL}/materials/${editingMaterialId}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            name,
+            type,
+            quantity,
+            unit
+        })
+    });
+
+    const data = await response.json();
+    console.log("STATUS:", response.status);
+    console.log("RESPONSE:", data);
+
+    if (!response.ok) {
+        showMessage(data.detail, true, "materials");
+        return;
+    }
+
+    showMessage("Material updated successfully", false, "materials");
+
+    closeModal();
+
+    await loadMaterials();
 }
 
 function filterByName(value) {
@@ -192,25 +280,24 @@ async function createMovement() {
         await loadMaterials();
         await loadMovements();
 
-        showMessage("Movement created successfully");
+        showMessage("Movement created successfully", false, "movements");
 
     }
+}
 
+// Show message in case of error
+function showMessage(message, isError = false, target = "materials") {
 
+    const boxId = target === "materials"
+        ? "materialsMessageBox"
+        : "movementsMessageBox";
 
-    // Show message in case of error
-    function showMessage(message, isError = false) {
+    const box = document.getElementById(boxId);
 
-        const box = document.getElementById("messageBox");
+    if (!box) return;
 
-        box.textContent = message;
-
-        if (isError) {
-            box.style.color = "red";
-        } else {
-            box.style.color = "green";
-        }
-    }
+    box.textContent = message;
+    box.style.color = isError ? "red" : "green";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
