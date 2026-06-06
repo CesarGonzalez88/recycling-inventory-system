@@ -62,9 +62,13 @@ def create_movement(movement: schemas.MovementCreate, db: Session = Depends(get_
     return crud.create_movement(db, movement)
 
 
-@app.get("/movements", response_model=list[MovementResponse])
-def read_movements(db: Session = Depends(get_db)):
-    return crud.get_movements(db)
+@app.get("/movements")
+def read_movements(
+    type: str = None,
+    material_id: int = None,
+    db: Session = Depends(get_db)
+):
+    return crud.get_movements(db, type, material_id)
 
 
 @app.get("/inventory-summary")

@@ -59,11 +59,18 @@ def create_movement(db: Session, movement: schemas.MovementCreate):
 
     return db_movement
 
+
 # GET MOVEMENTS HISTORY
+def get_movements(db: Session, type: str = None, material_id: int = None):
+    query = db.query(models.Movement)
 
+    if type:
+        query = query.filter(models.Movement.type == type)
 
-def get_movements(db: Session):
-    return db.query(models.Movement).order_by(models.Movement.created_at.desc()).all()
+    if material_id:
+        query = query.filter(models.Movement.material_id == material_id)
+
+    return query.order_by(models.Movement.created_at.desc()).all()
 
 
 # GET SUMMARY OF INVENTORY
