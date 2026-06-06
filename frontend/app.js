@@ -8,8 +8,11 @@ async function loadMaterials() {
     const response = await fetch(`${API_URL}/materials`);
     const data = await response.json();
 
-    allMaterials = data.data; // 👈 guardamos copia
+    console.log("MATERIALS RESPONSE:", data);
 
+    allMaterials = data.data;
+
+    populateMaterialSelect(allMaterials);
     renderMaterials(allMaterials);
 }
 
@@ -69,6 +72,25 @@ function sortByType() {
     renderMaterials(sorted);
 }
 
+function populateMaterialSelect(materials) {
+    console.log("Materials received:", materials);
+
+    const select = document.getElementById("movementMaterial");
+
+    select.innerHTML = "";
+
+    materials.forEach(material => {
+
+        select.innerHTML += `
+            <option value="${material.id}">
+                ${material.name}
+            </option>
+        `;
+
+    });
+
+}
+
 // MOVEMENTS
 async function loadMovements(type = null) {
     let url = `${API_URL}/movements`;
@@ -123,3 +145,51 @@ async function createMaterial() {
 
     console.log("RELOAD DONE");
 }
+
+async function createMovement() {
+
+    const material_id = Number(
+        document.getElementById("movementMaterial").value
+    );
+
+    const type =
+        document.getElementById("movementType").value;
+
+    const quantity = Number(
+        document.getElementById("movementQuantity").value
+    );
+
+    const description =
+        document.getElementById("movementDescription").value;
+
+    const response = await fetch(
+        `${API_URL}/movements`,
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                material_id,
+                type,
+                quantity,
+                description
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+
+    await loadMaterials();
+    await loadMovements();
+
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadMaterials();
+    loadMovements();
+});

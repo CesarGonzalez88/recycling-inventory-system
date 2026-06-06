@@ -56,6 +56,7 @@ def create_movement(db: Session, movement: schemas.MovementCreate):
     db.add(db_movement)
     db.commit()
     db.refresh(material)
+    db.refresh(db_movement)
 
     return db_movement
 

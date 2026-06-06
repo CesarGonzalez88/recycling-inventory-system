@@ -163,6 +163,25 @@
         <div class="section">
             <h2>Movements</h2>
 
+            <div class="section">
+                <h2>Create Movement</h2>
+
+                <select id="movementMaterial"></select>
+
+                <select id="movementType">
+                    <option value="IN">IN</option>
+                    <option value="OUT">OUT</option>
+                </select>
+
+                <input id="movementQuantity" type="number" placeholder="Quantity">
+
+                <input id="movementDescription" placeholder="Description">
+
+                <button onclick="createMovement()">
+                    Create Movement
+                </button>
+            </div>
+
             <button onclick="loadMovements()">All</button>
             <button onclick="loadMovements('IN')">IN</button>
             <button onclick="loadMovements('OUT')">OUT</button>
