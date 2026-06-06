@@ -178,15 +178,39 @@ async function createMovement() {
                 description
             })
         }
+
     );
 
     const data = await response.json();
 
-    console.log(data);
+    if (!response.ok) {
+        showMessage(data.detail, true);
+        return;
 
-    await loadMaterials();
-    await loadMovements();
+        console.log(data);
 
+        await loadMaterials();
+        await loadMovements();
+
+        showMessage("Movement created successfully");
+
+    }
+
+
+
+    // Show message in case of error
+    function showMessage(message, isError = false) {
+
+        const box = document.getElementById("messageBox");
+
+        box.textContent = message;
+
+        if (isError) {
+            box.style.color = "red";
+        } else {
+            box.style.color = "green";
+        }
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
