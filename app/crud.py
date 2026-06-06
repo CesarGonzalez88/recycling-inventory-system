@@ -63,7 +63,7 @@ def create_movement(db: Session, movement: schemas.MovementCreate):
 
 
 def get_movements(db: Session):
-    return db.query(models.Movement).all()
+    return db.query(models.Movement).order_by(models.Movement.created_at.desc()).all()
 
 
 # GET SUMMARY OF INVENTORY

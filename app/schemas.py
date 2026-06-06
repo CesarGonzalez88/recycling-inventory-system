@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 from typing import Literal
 
@@ -32,6 +34,7 @@ class MovementResponse(BaseModel):
     type: str
     quantity: int
     description: str
+    created_at: datetime
     material: MaterialResponse
 
     class Config:
